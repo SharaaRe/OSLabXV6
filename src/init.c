@@ -12,8 +12,8 @@ bootmsg(){
   printf(1, "--------------------------------- \n");
   printf(1, "--------- Group Members --------- \n");
   printf(1, "- 1. Mohammad Rabiei: 810195395 - \n");
-  printf(1, "- 2. Sharare Norouzi: 810195395 - \n");
-  printf(1, "- 3. Ali Ranjbar    : 810195395 - \n");
+  printf(1, "- 2. Sharare Norouzi: 810097015 - \n");
+  printf(1, "- 3. Ali Ranjbar    : 810097029 - \n");
   printf(1, "--------------------------------- \n");
 }
 
