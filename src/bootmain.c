@@ -39,6 +39,8 @@ bootmain(void)
     readseg(pa, ph->filesz, ph->off);
     if(ph->memsz > ph->filesz)
       stosb(pa + ph->filesz, 0, ph->memsz - ph->filesz);
+
+  
   }
 
   // Call the entry point from the ELF header.
