@@ -15,6 +15,10 @@
 #include "proc.h"
 #include "x86.h"
 
+#define HIS_SIZE 10
+#define INPUT_BUF 128
+
+
 static void consputc(int);
 
 static int panicked = 0;
@@ -23,6 +27,36 @@ static struct {
   struct spinlock lock;
   int locking;
 } cons;
+
+struct {
+  char buf[INPUT_BUF];
+  uint r;  // Read index
+  uint w;  // Write index
+  uint e;  // Edit index
+} input;
+
+static struct History {
+  char command [HIS_SIZE][INPUT_BUF];
+  uint command_size [HIS_SIZE];
+  uint index;
+} history;
+
+
+static void 
+tabhandler(){
+  int wlen = input.e - input.r;
+  for(int i = 0; i < HIS_SIZE; i++){
+    int index = (history.index - i) % HIS_SIZE;
+    if(!strncmp(&(input.buf[input.r]), history.command[index], wlen)){
+      for(int j = wlen; j < history.command_size[index]; j++){
+        char c = history.command[index][j];
+        consputc(c);
+        input.buf[input.e++] = c;
+      }
+      break;
+    }
+  }
+}
 
 static void
 printint(int xx, int base, int sign)
@@ -178,13 +212,6 @@ consputc(int c)
   cgaputc(c);
 }
 
-#define INPUT_BUF 128
-struct {
-  char buf[INPUT_BUF];
-  uint r;  // Read index
-  uint w;  // Write index
-  uint e;  // Edit index
-} input;
 
 #define C(x)  ((x)-'@')  // Control-x
 
@@ -213,11 +240,22 @@ consoleintr(int (*getc)(void))
         consputc(BACKSPACE);
       }
       break;
+
+    case '\x09': // TAB 
+      tabhandler();
+      break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
         c = (c == '\r') ? '\n' : c;
         input.buf[input.e++ % INPUT_BUF] = c;
         consputc(c);
+        if(c == '\n'){
+          int size = input.e - input.r - 1;
+
+          strncpy(history.command[history.index], &(input.buf[input.r]), size);
+          history.command_size[history.index] = size;
+          history.index = (history.index + 1) % HIS_SIZE;
+        }
         if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
           input.w = input.e;
           wakeup(&input.r);
@@ -295,5 +333,6 @@ consoleinit(void)
   cons.locking = 1;
 
   ioapicenable(IRQ_KBD, 0);
+
 }
 

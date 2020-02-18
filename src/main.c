@@ -14,6 +14,8 @@ extern char end[]; // first address after kernel loaded from ELF file
 // Bootstrap processor starts running C code here.
 // Allocate a real stack and switch to it, first
 // doing some setup required for memory allocator to work.
+
+
 int
 main(void)
 {
@@ -34,8 +36,10 @@ main(void)
   startothers();   // start other processors
   kinit2(P2V(4*1024*1024), P2V(PHYSTOP)); // must come after startothers()
   userinit();      // first user process
+
   mpmain();        // finish this processor's setup
 }
+
 
 // Other CPUs jump here from entryother.S.
 static void
