@@ -162,6 +162,8 @@ panic(char *s)
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
+
+#define C(x)  ((x)-'@')  // Control-x
 static void
 cgaputc(int c)
 {
@@ -173,10 +175,19 @@ cgaputc(int c)
   outb(CRTPORT, 15);
   pos |= inb(CRTPORT+1);
 
-  if(c == '\n')
+  if (c == C('R')){
+
+    c = BACKSPACE;
+    while(pos > 0){
+      crt[--pos] = (c&0xff) | 0x0700;  // black on white
+    }
+
+  }
+  else if(c == '\n')
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
-    if(pos > 0) --pos;
+    if (pos > 0) --pos;
+
   } else
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
 
@@ -207,13 +218,14 @@ consputc(int c)
 
   if(c == BACKSPACE){
     uartputc('\b'); uartputc(' '); uartputc('\b');
-  } else
+  }
+  else
     uartputc(c);
+
   cgaputc(c);
 }
 
 
-#define C(x)  ((x)-'@')  // Control-x
 
 void
 consoleintr(int (*getc)(void))
@@ -240,7 +252,16 @@ consoleintr(int (*getc)(void))
         consputc(BACKSPACE);
       }
       break;
-
+    case C('R'): //clear
+      while(input.e != input.w &&
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        consputc(BACKSPACE);
+      }
+      consputc(c);
+      consputc('$');
+      consputc(' ');
+      break;
     case '\x09': // TAB 
       tabhandler();
       break;
