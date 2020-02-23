@@ -38,7 +38,7 @@
     \definecolor{keyword}{RGB}{91, 77, 194}
     
     \lstset{
-    	language=python,                			% choose the language of the code
+    	language=C,                			% choose the language of the code
     	numbers=left,                   		% where to put the line-numbers
     	stepnumber=1,                   		% the step between two line-numbers.        
     	numbersep=5pt,                  		% how far the line-numbers are from the code
@@ -48,7 +48,7 @@
     	showstringspaces=false,         		% underline spaces within strings
     	showtabs=false,                 		% show tabs within strings adding particular underscores
     	tabsize=4,                      		% sets default tabsize to 2 spaces
-    	captionpos=b,                   		% sets the caption-position to bottom
+    	captionpos=t,                   		% sets the caption-position to bottom
     	breaklines=true,                		% sets automatic line breaking
     	breakatwhitespace=true,         		% sets if automatic breaks should only happen at whitespace
     	%title=\lstname,                 		% show the filename of files included with \lstinputlisting;
@@ -56,8 +56,10 @@
     	keywordstyle=\color{keyword}\ttfamily,	% sets color for keywords
     	% keywordstyle=[2]\color{identifier}
     	% morekeywords=[2]{load_data, estimate_params, calc_prior_probabilities, shrinkage, diff, argmax, main},
-    	stringstyle=\color{string}\ttfamily,		% sets color for strings
-    	commentstyle=\color{comment}\ttfamily,	% sets color for comments
+    	stringstyle=\color{string}\ttfamily,	% sets color for strings
+    	commentstyle=\color{normal}\ttfamily,	% sets color for comments
+    	morecomment=[f][\color{comment}][0]{//},
+    	morecomment=[f][\color{normal}][0]{\#},
     	emph={format_string, eff_ana_bf, permute, eff_ana_btr},
     	emphstyle=\color{identifier}\ttfamily,
     	moredelim=**[is][\textcolor{green}]{def}{(},
