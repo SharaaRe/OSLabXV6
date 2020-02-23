@@ -2,90 +2,54 @@
 #include "stat.h"
 #include "user.h"
 #include "fs.h"
+#include "fcntl.h"
 
-#define LINE_BUF 256
-
-char*
-fmtname(char *path)
-{
-  static char buf[DIRSIZ+1];
-  char *p;
-
-  // Find first character after last slash.
-  for(p=path+strlen(path); p >= path && *p != '/'; p--)
-    ;
-  p++;
-
-  // Return blank-padded name.
-  if(strlen(p) >= DIRSIZ)
-    return p;
-  memmove(buf, p, strlen(p));
-  memset(buf+strlen(p), ' ', DIRSIZ-strlen(p));
-  return buf;
-}
+#define LINE_BUF  256
+#define NULL_CONTENT 0
+#define WITH_CONTENT 1
 
 void
-touch(char *path)
+touch(char *fname, int optype)
 {
-  char buf[512], *p;
-  int fd;
-  struct dirent de;
-  struct stat st;
+  int fd, cfd;
+  char* content = 0;
 
-  if((fd = open(path, 0)) < 0){
-    printf(2, "ls: cannot open %s\n", path);
-    return;
-  }
-
-  if(fstat(fd, &st) < 0){
-    printf(2, "ls: cannot stat %s\n", path);
-    close(fd);
-    return;
-  }
-
-  switch(st.type){
-  case T_FILE:
-    printf(1, "%s %d %d %d\n", fmtname(path), st.type, st.ino, st.size);
-    break;
-
-  case T_DIR:
-    if(strlen(path) + 1 + DIRSIZ + 1 > sizeof buf){
-      printf(1, "ls: path too long\n");
-      break;
-    }
-    strcpy(buf, path);
-    p = buf+strlen(buf);
-    *p++ = '/';
-    while(read(fd, &de, sizeof(de)) == sizeof(de)){
-      if(de.inum == 0)
-        continue;
-      memmove(p, de.name, DIRSIZ);
-      p[DIRSIZ] = 0;
-      if(stat(buf, &st) < 0){
-        printf(1, "ls: cannot stat %s\n", buf);
-        continue;
+  switch(optype){
+    case NULL_CONTENT:
+      if((fd = open(fname, O_RDONLY)) < 0){
+        cfd = open(fname, O_CREATE);
+        close(cfd);
       }
-      printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
-    }
-    break;
+      close(fd);
+      break;
+    
+    case WITH_CONTENT:
+      if((fd = open(fname, O_RDONLY)) > 0){
+        unlink(fname);
+      }
+      close(fd);
+      cfd = open(fname, O_CREATE | O_WRONLY);
+      gets(content, LINE_BUF);
+      write(cfd, content, strlen(content));
+      close(cfd);
+      break;
   }
-  close(fd);
 }
 
 int
 main(int argc, char *argv[])
 {
-    int i;
-    char buf[LINE_BUF];
-
-    if(argc < 2){
-        printf(1, "touch: provide file name");
-        exit();
-    } else if(argc == 2){
-        printf(1, "touch: will make new file with name"); // edit
-    } else if (argc == 3 && !strncmp(argv[1], "-w", 2)){
-        
-
-    }
-        
+  if(argc < 2){
+    printf(1, "touch: provide file name\n");
+    exit();
+  } else if(argc == 2){
+    touch(argv[1], NULL_CONTENT);
+    exit();
+  } else if (argc == 3 && !strcmp(argv[1], "-w")){
+    touch(argv[2], WITH_CONTENT);
+    exit();
+  } else {
+    printf(1, "touch: too many arguments\n");
+    exit();
+  }     
 }
