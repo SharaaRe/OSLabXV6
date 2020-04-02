@@ -1,0 +1,66 @@
+\documentclass[logo=images/logo.png]{tehranReport}
+\usepackage{arydshln}
+\usepackage[inline]{enumitem}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[dvipsnames,table]{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{xepersian}
+\usepackage{footnote}
+\usepackage{pifont}
+
+
+\settextfont{XB Niloofar}
+
+\title{پروژه‌ی ۲ - گزارش}
+\author{\href{mailto:ranjbar.ali@ut.ac.ir?subject=[OS\%20S99 L1]\%20}{علی رنجبر}}
+\authorPosition{دانشجوی کهاد مهندسی کامپیوتر~~نرم افزار}
+\studentNumber{810097029}
+
+\secondMember{{\href{mailto:ranjbar.ali@ut.ac.ir?subject=[OS\%20S99 L1]\%20}{شراره نوروزی}}}
+\secondMemberPosition{دانشجوی کهاد مهندسی کامپیوتر~~نرم افزار}
+\secondMemberStudentNumber{810097015}
+
+\thirdMember{{\href{mailto:ranjbar.ali@ut.ac.ir?subject=[OS\%20S99 L1]\%20}{محمد ربیعی}}}
+\thirdMemberPosition{دانشجوی مهندسی برق}
+\thirdMemberStudentNumber{810195395}
+
+\university{دانشگاه تهران}
+\college{پردیس دانشکده‌های فنی\\دانشکدهٔ مهندسی برق و کامپیوتر}
+\studentNumber{810097029}
+\course{آزمایشگاه سیستم عامل}
+\supervisor{دکتر کارگهی}
+\graphicspath{{./images/}}
+
+\tolerance=5000
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+\begin{document}
+	\maketitlepage
+	\section*{مقدمه}
+	\input{problem1}
+	\input{problem2}
+
+	\section*{سازوکار اجرای فراخوانی سیستمی در \lr{xv6}}
+	\subsection*{بخش سخت‌افزاری و اسمبلی}
+	\input{problem3}
+	\input{problem4}
+	\subsection*{بخش سطح بالا و کنترل کننده‌ی زبان سی تله}
+	\input{problem5}
+	\section*{پیاده سازی فراخوانی‌های سیستمی}
+	\subsection*{شمارش رقم‌های ورودی}
+	\input{syscall1}
+	\subsection*{پیاده سازی \lr{Alarm}}
+	\input{syscall2}
+	\subsection*{ذخیره و نمایش اطلاعاتی از فراخوانی‌های سیستمی هر پردازه}
+	\input{syscall3}
+	\subsection*{کار با مقادیر ثبات‌ها در قاب تله}
+	\input{syscall4}
+	
+\end{document}
