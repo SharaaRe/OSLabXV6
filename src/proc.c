@@ -537,10 +537,10 @@ procdump(void)
 int count_num_of_digits(int n) 
 {
   int count = 0;
-  while (n) {
+  while (n > 0) {
     count++;
     n = n / 10;
   }
-  cprintf("%d", n);
+  cprintf("%d\n", count);
   return count;
 }
