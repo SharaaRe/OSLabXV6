@@ -99,3 +99,9 @@ sys_count_num_of_digits(void)
     return -1;
   return count_num_of_digits(n);
 }
+
+int
+sys_print_syscalls(void)
+{
+  return print_syscalls();
+}

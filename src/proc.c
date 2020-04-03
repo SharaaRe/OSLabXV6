@@ -544,3 +544,9 @@ int count_num_of_digits(int n)
   cprintf("%d\n", count);
   return count;
 }
+
+int
+print_syscalls(void)
+{
+  return 0;
+}
