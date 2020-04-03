@@ -135,12 +135,25 @@ static int (*syscalls[])(void) = {
 void
 syscall(void)
 {
-  int num;
+  int num, npair;
   struct proc *curproc = myproc();
+
+  for(npair = 0; npair < NLOGPAIR; npair++) {
+    if(curproc->sysclog[npair].callno == 0) {
+      break;
+    }
+  }
 
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     curproc->tf->eax = syscalls[num]();
+    
+    if(npair < NLOGPAIR) {
+      // cprintf("calling <%d> lead to <%d>\n", num, curproc->tf->eax);
+      curproc->sysclog[npair].callno = num;
+      curproc->sysclog[npair].retval = curproc->tf->eax;
+    }
+
   } else {
     cprintf("%d %s: unknown sys call %d\n",
             curproc->pid, curproc->name, num);

@@ -183,6 +183,7 @@ fork(void)
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
+  struct _sysclog *s;
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -215,6 +216,11 @@ fork(void)
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
+
+  for(s = np->sysclog; s < &np->sysclog[NLOGPAIR]; s++) {
+    s->callno = 0;
+    s->retval = 0;
+  }
 
   release(&ptable.lock);
 
@@ -545,8 +551,34 @@ int count_num_of_digits(int n)
   return count;
 }
 
+// prints all system calls and the their return values
+// in each process
 int
 print_syscalls(void)
 {
-  return 0;
+  struct proc *p;
+  struct _sysclog *s;
+  const char *names[] = {"", "fork", "exit", "wait", "pipe", "read",
+    "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
+    "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
+    "close", "count_num_of_digits", "print_syscalls" };
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == 0) continue;
+    cprintf("Proc %d\n", p->pid);
+    for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
+      if(s->callno == 0) break;
+      if(s->callno > sizeof(names)/sizeof(names[0])) {
+        cprintf("\t%s:\t%d\n", "unknown", s->retval);
+      } else {
+        cprintf("\t%s:\t%d\n", names[s->callno], s->retval);
+      }
+    }
+  }
+
+  release(&ptable.lock);
+
+  return 23;
 }
