@@ -120,6 +120,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             count_num_of_digits(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

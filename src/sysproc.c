@@ -89,3 +89,13 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// return cout number of digits
+int 
+sys_count_num_of_digits(void)
+{
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  return count_num_of_digits(n);
+}

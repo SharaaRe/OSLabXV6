@@ -532,3 +532,15 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+// return count of a number digits
+int count_num_of_digits(int n) 
+{
+  int count = 0;
+  while (n) {
+    count++;
+    n = n / 10;
+  }
+  cprintf("%d", n);
+  return count;
+}
