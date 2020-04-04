@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "defs.h": "c",
-        "user.h": "c",
-        "fcntl.h": "c",
-        "printf.h": "c",
-        "string.h": "c"
-    }
-}
