@@ -536,11 +536,13 @@ procdump(void)
 // return count of a number digits
 int count_num_of_digits(int n) 
 {
+  int copy = n;
   int count = 0;
   while (n > 0) {
     count++;
     n = n / 10;
   }
-  cprintf("%d\n", count);
+  cprintf("count of number %d digits: %d \n", copy, count);
+
   return count;
 }

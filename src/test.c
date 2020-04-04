@@ -8,10 +8,16 @@
 
 int main(int argc, char* argv[]) {
     int n = 12345;
-    int digit = count_num_of_digits(n);
-    // write(1, &digit, sizeof(digit));
-    // write(1, "\n", 1);
-
-    printf(1, "TEST %d \n", digit);
+    if (argc >= 2) {
+        for (int i = 1; i < argc; i++) {
+            printf(1, "TEST for ");
+            count_num_of_digits(atoi(argv[i]));
+        }
+    }else {
+        printf(1, "TEST for ");
+        count_num_of_digits(n);        
+    }
+    
+    
     exit();
 }
