@@ -114,3 +114,18 @@ sys_print_syscalls(void)
 {
   return print_syscalls();
 }
+
+// set edx register value
+int
+sys_set_edx(void) {
+  int value;
+  if (argint(0, &value) < 0)
+    return -1;
+  return set_edx(value);
+}
+
+// read and print registers
+int
+sys_read_registers(void) {
+  return read_registers();
+}
