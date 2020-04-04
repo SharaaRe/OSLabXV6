@@ -155,7 +155,6 @@ syscall(void)
     curproc->tf->eax = syscalls[num]();
     
     if(npair < NLOGPAIR) {
-      // cprintf("calling <%d> lead to <%d>\n", num, curproc->tf->eax);
       curproc->sysclog[npair].callno = num;
       curproc->sysclog[npair].retval = curproc->tf->eax;
     }
