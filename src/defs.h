@@ -122,6 +122,8 @@ void            wakeup(void*);
 void            yield(void);
 int             count_num_of_digits(int);
 int		print_syscalls(void);
+int             set_edx(int);
+int             read_registers(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -582,3 +582,71 @@ print_syscalls(void)
 
   return 23;
 }
+
+
+// simply set edx register to value
+int
+set_edx(int value) {
+  acquire(&ptable.lock);
+  struct proc *p = myproc();
+  p->tf->edx = value;
+
+  release(&ptable.lock);
+  return 24;
+}
+
+// print registers
+int
+read_registers(void) {
+  // unsigned int v;
+  acquire(&ptable.lock);
+  struct proc *p = myproc();
+
+  // asm("movl %%eax, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mEAX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mEAX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->eax);
+
+  // asm("movl %%ebx, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mEBX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mEBX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->ebx);
+
+  // asm("movl %%ecx, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mECX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mECX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->ecx);
+
+  // asm("movl %%edx, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mEDX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mEDX\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->edx);
+
+  // asm("movl %%esi, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mESI\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mESI\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->esi);
+
+  // asm("movl %%edi, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mEDI\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mEDI\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->edi);
+
+  // asm("movl %%ebp, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mEBP\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mEBP\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->ebp);
+
+  // asm("movl %%esp, %0" : "=r"(v) :);
+  // cprintf("\x1B[32mESP\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", v);
+  cprintf("\x1B[32mESP\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->esp);
+
+  // asm("movl %%eip, %0" : "=r"(v) :);
+  cprintf("\x1B[32mEIP\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->eip);
+  // cprintf("EIP:  0x%x\n", p->tf->eip);
+
+  // asm("movl %%eflags, %0" : "=r"(v) :);
+  cprintf("\x1B[32mEFLAGS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->eflags);
+  
+  cprintf("\x1B[32mSS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->ss);
+  cprintf("\x1B[32mDS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->ds);
+  cprintf("\x1B[32mES\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->es);
+  cprintf("\x1B[32mFS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->fs);
+  cprintf("\x1B[32mGS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->gs);
+  
+  release(&ptable.lock);
+  return 25;
+}

@@ -105,6 +105,8 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_count_num_of_digits(void);
 extern int sys_print_syscalls(void);
+extern int sys_set_edx(void);
+extern int sys_read_registers(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -129,7 +131,9 @@ static int (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_count_num_of_digits] sys_count_num_of_digits,
-[SYS_print_syscalls] sys_print_syscalls
+[SYS_print_syscalls] sys_print_syscalls,
+[SYS_set_edx] sys_set_edx,
+[SYS_read_registers] sys_read_registers,
 };
 
 void
