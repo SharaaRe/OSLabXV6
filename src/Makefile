@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_touch\
 	_test\
+	_psc\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

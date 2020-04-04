@@ -99,3 +99,10 @@ sys_count_num_of_digits(void)
     return -1;
   return count_num_of_digits(n);
 }
+
+// print outs all system calls of each process
+int
+sys_print_syscalls(void)
+{
+  return print_syscalls();
+}

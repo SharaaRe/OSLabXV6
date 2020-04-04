@@ -24,6 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int count_num_of_digits(int);
+int print_syscalls(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
