@@ -29,7 +29,7 @@ main(void)
   }
   dup(0);  // stdout
   dup(0);  // stderr
-  bootmsg();
+  // bootmsg();
 
 
   for(;;){
