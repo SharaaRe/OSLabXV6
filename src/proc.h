@@ -54,6 +54,7 @@ struct proc {
   struct file *ofile[NOFILE];       // Open files
   struct inode *cwd;                // Current directory
   char name[16];                    // Process name (debugging)
+  int alarm_time;                   // bigger than 0 if an alarm is set
   struct _sysclog sysclog[NLOGPAIR]; // (call number, return value) pair for each system call
 };
 

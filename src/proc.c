@@ -348,7 +348,7 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
+      check_alarm(p);
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -553,6 +553,29 @@ int count_num_of_digits(int n)
   return count;
 }
 
+
+// sets alarm and waits untill the proper time
+// has left and then warn the user
+void 
+set_alarm(int time) 
+{
+  acquire(&tickslock);
+  myproc()->alarm_time = ticks + time;
+  release(&tickslock);
+}
+
+void
+check_alarm(struct proc* p)
+{
+  if (ticks >= p->alarm_time && p->alarm_time > 0)
+  {
+    cprintf("Alarm!!!\n");
+    p->alarm_time = 0;
+  }
+} 
+
+
+
 // prints all system calls and the their return values
 // in each process
 int
@@ -563,7 +586,7 @@ print_syscalls(void)
   const char *names[] = {"", "fork", "exit", "wait", "pipe", "read",
     "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
     "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
-    "close", "count_num_of_digits", "print_syscalls" };
+    "close", "count_num_of_digits", "set_alarm" "print_syscalls" };
 
   acquire(&ptable.lock);
 

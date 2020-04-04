@@ -100,6 +100,17 @@ sys_count_num_of_digits(void)
   return count_num_of_digits(n);
 }
 
+int
+sys_set_alarm(void) 
+{
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  set_alarm(n);
+  return 0;
+}
+
+
 // print outs all system calls of each process
 int
 sys_print_syscalls(void)
