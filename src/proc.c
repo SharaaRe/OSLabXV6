@@ -236,6 +236,9 @@ exit(void)
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
+  
+  int npair;
+  struct _sysclog *s;
 
   if(curproc == initproc)
     panic("init exiting");
@@ -264,6 +267,18 @@ exit(void)
       p->parent = initproc;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
+    }
+  }
+
+  for(npair = 0; npair < NLOGPAIR; npair++) {
+    if(initproc->sysclog[npair].callno == 0) break;
+  }
+
+  for(s = curproc->sysclog; s < &curproc->sysclog[NLOGPAIR]; s++) {
+    if(s->callno != 0) {
+      initproc->sysclog[npair].callno = s->callno;
+      initproc->sysclog[npair].retval = s->retval;
+      npair++;
     }
   }
 
@@ -486,6 +501,12 @@ int
 kill(int pid)
 {
   struct proc *p;
+  int npair;
+  struct _sysclog *s;
+
+  for(npair = 0; npair < NLOGPAIR; npair++) {
+    if(initproc->sysclog[npair].callno == 0) break;
+  }
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -494,10 +515,20 @@ kill(int pid)
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING)
         p->state = RUNNABLE;
+
+      for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
+        if(s->callno != 0) {
+          initproc->sysclog[npair].callno = s->callno;
+          initproc->sysclog[npair].retval = s->retval;
+          npair++;
+        }
+      }
+
       release(&ptable.lock);
       return 0;
     }
   }
+
   release(&ptable.lock);
   return -1;
 }
@@ -586,7 +617,8 @@ print_syscalls(void)
   const char *names[] = {"", "fork", "exit", "wait", "pipe", "read",
     "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
     "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
-    "close", "count_num_of_digits", "set_alarm" "print_syscalls" };
+    "close", "count_num_of_digits", "set_alarm", "print_syscalls",
+    "set_edx", "read_registers"};
 
   acquire(&ptable.lock);
 
