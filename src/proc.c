@@ -540,8 +540,9 @@ procdump(void)
 }
 
 // return count of a number digits
-int count_num_of_digits(int n) 
+int count_num_of_digits() 
 {
+  int n = myproc()->tf->ebx;
   int copy = n;
   int count = 0;
   while (n > 0) {
@@ -556,11 +557,16 @@ int count_num_of_digits(int n)
 
 // sets alarm and waits untill the proper time
 // has left and then warn the user
+// time is in milisecond unit
 void 
 set_alarm(int time) 
 {
+  if (time <= 0) {
+    cprintf("time should be bigger than zero, no alarm is set!\n");
+    return;
+  }
   acquire(&tickslock);
-  myproc()->alarm_time = ticks + time;
+  myproc()->alarm_time = ticks + time / 10;
   release(&tickslock);
 }
 
