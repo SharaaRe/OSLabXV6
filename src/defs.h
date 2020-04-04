@@ -121,7 +121,9 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 int             count_num_of_digits(int);
-int		print_syscalls(void);
+void            set_alarm(int);
+void            check_alarm(struct proc*);
+int		        print_syscalls(void);
 int             set_edx(int);
 int             read_registers(void);
 

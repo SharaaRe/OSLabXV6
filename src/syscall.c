@@ -104,6 +104,7 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_count_num_of_digits(void);
+extern int sys_set_alarm(void);
 extern int sys_print_syscalls(void);
 extern int sys_set_edx(void);
 extern int sys_read_registers(void);
@@ -134,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_print_syscalls] sys_print_syscalls,
 [SYS_set_edx] sys_set_edx,
 [SYS_read_registers] sys_read_registers,
+[SYS_set_alarm] sys_set_alarm,
 };
 
 void

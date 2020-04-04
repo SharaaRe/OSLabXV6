@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_touch\
 	_test\
+	_alarmtest\
 	_psc\
 	_pregs\
 
@@ -254,7 +255,11 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
+<<<<<<< HEAD
 	printf.c umalloc.c touch.c test.c pregs.c\
+=======
+	printf.c umalloc.c touch.c test.c alarmtest.c psc.c\
+>>>>>>> 707d5ed1d76203bb5b2660eb5defa36faf9c7f87
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 

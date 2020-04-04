@@ -348,7 +348,7 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
+      check_alarm(p);
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -542,14 +542,39 @@ procdump(void)
 // return count of a number digits
 int count_num_of_digits(int n) 
 {
+  int copy = n;
   int count = 0;
   while (n > 0) {
     count++;
     n = n / 10;
   }
-  cprintf("%d\n", count);
+  cprintf("count of number %d digits: %d \n", copy, count);
+
   return count;
 }
+
+
+// sets alarm and waits untill the proper time
+// has left and then warn the user
+void 
+set_alarm(int time) 
+{
+  acquire(&tickslock);
+  myproc()->alarm_time = ticks + time;
+  release(&tickslock);
+}
+
+void
+check_alarm(struct proc* p)
+{
+  if (ticks >= p->alarm_time && p->alarm_time > 0)
+  {
+    cprintf("Alarm!!!\n");
+    p->alarm_time = 0;
+  }
+} 
+
+
 
 // prints all system calls and the their return values
 // in each process
@@ -561,7 +586,7 @@ print_syscalls(void)
   const char *names[] = {"", "fork", "exit", "wait", "pipe", "read",
     "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
     "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
-    "close", "count_num_of_digits", "print_syscalls" };
+    "close", "count_num_of_digits", "set_alarm" "print_syscalls" };
 
   acquire(&ptable.lock);
 
@@ -592,7 +617,7 @@ set_edx(int value) {
   p->tf->edx = value;
 
   release(&ptable.lock);
-  return 24;
+  return 25;
 }
 
 // print registers
@@ -648,5 +673,5 @@ read_registers(void) {
   cprintf("\x1B[32mGS\x1B[37m:  \x1B[36m0x%x\x1B[0m\n", p->tf->gs);
   
   release(&ptable.lock);
-  return 25;
+  return 26;
 }
