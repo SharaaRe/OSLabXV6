@@ -412,7 +412,6 @@ void sched_lottery(cpu_t *c) {
     }
 
     winner = random_at_most(tickets_sum);
-    // cprintf("%d\n", (int) winner);
     tickets_sum = 0;
 
     empty_queue = 1;
@@ -912,4 +911,19 @@ ps() {
 
   release(&ptable.lock);
   return 27;
+}
+
+//set process queue
+int
+set_queue(int value) {
+  if (value != PL1 && value != PL2 && value != PL3) {
+    cprintf("queue priority entered is not defined.");
+    return -1;
+  }
+
+  acquire(&ptable.lock);
+  struct proc *p = myproc();
+  p->priority = value;
+  release(&ptable.lock);
+  return 0;
 }

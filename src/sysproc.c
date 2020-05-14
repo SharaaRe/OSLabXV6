@@ -135,3 +135,12 @@ int
 sys_ps ( void ) {
   return ps();
 }
+
+//set process queue
+int
+sys_set_queue(void) {
+  int value;
+  if (argint(0, &value) < 0)
+    return -1;
+  return set_queue(value);
+}
