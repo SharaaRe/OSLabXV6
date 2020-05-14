@@ -371,6 +371,7 @@ void run_proc(cpu_t *c, proc_t *p) {
   // before jumping back to us.
   p->clicks = p->clicks + 1;
   p->last_run = ticks;
+  p->last_run = ticks;
 
   c->proc = p;
   switchuvm(p);
@@ -382,6 +383,15 @@ void run_proc(cpu_t *c, proc_t *p) {
   // Process is done running for now.
   // It should have changed its p->state before coming back.
   c->proc = 0;
+}
+
+// apply aging
+void apply_aging(proc_t *p) {
+  int waiting_time = ticks - p->last_run;
+  if (waiting_time > 2500) {
+    p->priority = PL1;
+    p->last_run = ticks;
+  }
 }
 
 // Lottery scheduler
@@ -430,10 +440,14 @@ void sched_rr(cpu_t *c) {
   do {
     empty_queue = 1;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-      if (p->state == RUNNABLE && p->priority == PL2) {
-        empty_queue = 0;
+      if (p->priority == PL2) {
+        apply_aging(p);
 
-        run_proc(c, p);
+        if (p->state == RUNNABLE) {
+          empty_queue = 0;
+
+          run_proc(c, p);
+        }
       }
     }
   } while (empty_queue == 0);
@@ -449,29 +463,33 @@ void sched_hrrn(cpu_t *c) {
   do {
     empty_queue = 1;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-      if (p->state == RUNNABLE && p->priority == PL3) {
-        empty_queue = 0;
+      if (p->priority == PL3) {
+        apply_aging(p);
         
-        // find the process with highest HRRN
-        for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-          if (p->state == RUNNABLE && p->priority == PL3) {
-            waiting_time = ticks - p->arrival_time;
-            n_execution_cycles = p->clicks;
-            hrrn = ((float)waiting_time)/n_execution_cycles;
-            if (hrrn > max_hrrn) {
-              max_hrrn = hrrn;
-              victor_p = p;
+        if (p->state == RUNNABLE) {
+          empty_queue = 0;
+          
+          // find the process with highest HRRN
+          for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+            if (p->state == RUNNABLE && p->priority == PL3) {
+              waiting_time = ticks - p->arrival_time;
+              n_execution_cycles = p->clicks;
+              hrrn = ((float)waiting_time)/n_execution_cycles;
+              if (hrrn > max_hrrn) {
+                max_hrrn = hrrn;
+                victor_p = p;
+              }
             }
           }
-        }
 
-        if (victor_p == 0) {
-          empty_queue = 1;
-          break;
+          if (victor_p == 0) {
+            empty_queue = 1;
+            break;
+          }
+          p = victor_p;
+          
+          run_proc(c, p);
         }
-        p = victor_p;
-        
-        run_proc(c, p);
       }
     }
   } while (empty_queue == 0);
