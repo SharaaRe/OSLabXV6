@@ -29,6 +29,8 @@ int print_syscalls(void);
 int set_edx(int);
 int read_registers(void);
 int ps(void);
+int set_tickets(int);
+int set_queue(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
