@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 
+#define N_QUEUE 3
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -19,6 +21,10 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+
+// parameter definition for 3 levels of queue.
+static struct proc *queue[N_QUEUE][NPROC];      // process queue
+static int n_proc[N_QUEUE] = { -1, -1, -1 }; // number of processes in l3 queue
 
 void
 pinit(void)
@@ -83,12 +89,23 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
 
+    p->priority = PL2;
+    p->clicks = 1;
+    p->arrival_time = ticks;
+    ++n_proc[PL2];
+    queue[PL2][n_proc[PL2]] = p;
+
   release(&ptable.lock);
   return 0;
 
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = PL2;
+  p->clicks = 1;
+  p->arrival_time = ticks;
+  ++n_proc[PL2];
+  queue[PL2][n_proc[PL2]] = p;
 
   release(&ptable.lock);
 

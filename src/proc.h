@@ -39,6 +39,13 @@ struct _sysclog {
   uint retval;
 };
 
+// enum for the process different priorities
+typedef enum priority {
+  PL1 = 0,
+  PL2 = 1,
+  PL3 = 2,
+} priority_t;
+
 // Per-process state
 struct proc {
   uint sz;                          // Size of process memory (bytes)
@@ -56,6 +63,9 @@ struct proc {
   char name[16];                    // Process name (debugging)
   int alarm_time;                   // bigger than 0 if an alarm is set
   struct _sysclog sysclog[NLOGPAIR]; // (call number, return value) pair for each system call
+  int priority;                     // current priority queue number of the process
+  int clicks;                       // execution cycle number
+  uint arrival_time;                // process arrival time in number of processor ticks
 };
 
 // Process memory is laid out contiguously, low addresses first:
