@@ -96,7 +96,7 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
 
-  p->priority = PL2;
+  p->priority = PL3;
   p->clicks = 1;
   p->arrival_time = ticks;
   p->tickets = 10;
@@ -107,7 +107,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->priority = PL2;
+  p->priority = PL3;
   p->clicks = 1;
   p->arrival_time = ticks;
   p->tickets = 10;
