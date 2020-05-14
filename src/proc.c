@@ -10,6 +10,7 @@
 
 #define N_QUEUE 3
 typedef struct cpu cpu_t;
+typedef struct proc proc_t;
 
 struct {
   struct spinlock lock;
@@ -99,6 +100,7 @@ allocproc(void)
   p->priority = PL3;
   p->clicks = 1;
   p->arrival_time = ticks;
+  p->last_run = p->arrival_time;
   p->tickets = 10;
 
   release(&ptable.lock);
@@ -110,6 +112,7 @@ found:
   p->priority = PL3;
   p->clicks = 1;
   p->arrival_time = ticks;
+  p->last_run = p->arrival_time;
   p->tickets = 10;
 
   release(&ptable.lock);
@@ -361,6 +364,26 @@ wait(void)
   }
 }
 
+// run process
+void run_proc(cpu_t *c, proc_t *p) {
+  // Switch to chosen process.  It is the process's job
+  // to release ptable.lock and then reacquire it
+  // before jumping back to us.
+  p->clicks = p->clicks + 1;
+  p->last_run = ticks;
+
+  c->proc = p;
+  switchuvm(p);
+  p->state = RUNNING;
+  check_alarm(p);
+  swtch(&(c->scheduler), p->context);
+  switchkvm();
+
+  // Process is done running for now.
+  // It should have changed its p->state before coming back.
+  c->proc = 0;
+}
+
 // Lottery scheduler
 void sched_lottery(cpu_t *c) {
   struct proc *p;
@@ -393,21 +416,7 @@ void sched_lottery(cpu_t *c) {
         if (tickets_sum < winner)
           continue;
         
-      
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-        c->proc = p;
-        switchuvm(p);
-        p->state = RUNNING;
-        check_alarm(p);
-        swtch(&(c->scheduler), p->context);
-        switchkvm();
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
+        run_proc(c, p);
       }
     }
   } while (empty_queue == 0);
@@ -424,14 +433,7 @@ void sched_rr(cpu_t *c) {
       if (p->state == RUNNABLE && p->priority == PL2) {
         empty_queue = 0;
 
-        c->proc = p;
-        switchuvm(p);
-        p->state = RUNNING;
-        check_alarm(p);
-        swtch(&(c->scheduler), p->context);
-        switchkvm();
-
-        c->proc = 0;
+        run_proc(c, p);
       }
     }
   } while (empty_queue == 0);
@@ -468,16 +470,8 @@ void sched_hrrn(cpu_t *c) {
           break;
         }
         p = victor_p;
-        p->clicks = p->clicks + 1;
         
-        c->proc = p;
-        switchuvm(p);
-        p->state = RUNNING;
-        check_alarm(p);
-        swtch(&(c->scheduler), p->context);
-        switchkvm();
-
-        c->proc = 0;
+        run_proc(c, p);
       }
     }
   } while (empty_queue == 0);

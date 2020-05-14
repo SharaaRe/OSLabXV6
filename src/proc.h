@@ -65,6 +65,7 @@ struct proc {
   struct _sysclog sysclog[NLOGPAIR]; // (call number, return value) pair for each system call
   int priority;                     // current priority queue number of the process
   int clicks;                       // execution cycle number
+  int last_run;                     // last execution time in number of processor ticks
   uint arrival_time;                // process arrival time in number of processor ticks
   int tickets;                      // the number of tickets for lottery scheduling
 };
