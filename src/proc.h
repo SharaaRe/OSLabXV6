@@ -66,7 +66,7 @@ struct proc {
   int priority;                     // current priority queue number of the process
   int clicks;                       // execution cycle number
   uint arrival_time;                // process arrival time in number of processor ticks
-  int tickets;                      //the number of tickets for lottery scheduling
+  int tickets;                      // the number of tickets for lottery scheduling
 };
 
 // Process memory is laid out contiguously, low addresses first:

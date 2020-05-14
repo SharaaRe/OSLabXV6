@@ -9,6 +9,7 @@
 #include "rand.h"
 
 #define N_QUEUE 3
+typedef struct cpu cpu_t;
 
 struct {
   struct spinlock lock;
@@ -23,9 +24,14 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+void sched_lottery(cpu_t*);
+void sched_rr(cpu_t*);
+void sched_hrrn(cpu_t*);
+
 // parameter definition for 3 levels of queue.
-static struct proc *queue[N_QUEUE][NPROC];      // process queue
-static int n_proc[N_QUEUE] = { -1, -1, -1 }; // number of processes in l3 queue
+// static struct proc *queue[N_QUEUE][NPROC];      // process queue
+// static int n_proc[N_QUEUE] = { -1, -1, -1 }; // number of processes in l3 queue
+void (*scheduler_level[N_QUEUE])(cpu_t*) = { sched_lottery, sched_rr, sched_hrrn };
 
 void
 pinit(void)
@@ -90,11 +96,10 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
 
-    p->priority = PL2;
-    p->clicks = 1;
-    p->arrival_time = ticks;
-    ++n_proc[PL2];
-    queue[PL2][n_proc[PL2]] = p;
+  p->priority = PL2;
+  p->clicks = 1;
+  p->arrival_time = ticks;
+  p->tickets = 10;
 
   release(&ptable.lock);
   return 0;
@@ -105,8 +110,7 @@ found:
   p->priority = PL2;
   p->clicks = 1;
   p->arrival_time = ticks;
-  ++n_proc[PL2];
-  queue[PL2][n_proc[PL2]] = p;
+  p->tickets = 10;
 
   release(&ptable.lock);
 
@@ -130,7 +134,6 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-  p->tickets = 10; //edit
 
   return p;
 }
@@ -358,6 +361,87 @@ wait(void)
   }
 }
 
+// Lottery scheduler
+void sched_lottery(cpu_t *c) {
+  struct proc *p;
+  int winner, tickets_sum;
+  int empty_queue = 1;
+
+  do {
+    tickets_sum = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+
+        if (p->priority == PL1) {
+          if (p->state == RUNNABLE) {
+            tickets_sum += p->tickets;
+          }
+        }
+    }
+
+    winner = random_at_most(tickets_sum);
+    // cprintf("%d\n", (int) winner);
+    tickets_sum = 0;
+
+    empty_queue = 1;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p->state != RUNNABLE)
+        continue;
+      if (p->priority == PL1) {
+        empty_queue = 0;
+        
+        tickets_sum += p->tickets;
+        if (tickets_sum < winner)
+          continue;
+        
+      
+
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+        check_alarm(p);
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+      }
+    }
+  } while (empty_queue == 0);
+}
+
+// Round-Robin scheduler
+void sched_rr(cpu_t *c) {
+  struct proc *p;
+  int empty_queue = 1;
+
+  do {
+    empty_queue = 1;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+      if (p->state == RUNNABLE && p->priority == PL2) {
+        empty_queue = 0;
+
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+        check_alarm(p);
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        c->proc = 0;
+      }
+    }
+  } while (empty_queue == 0);
+}
+
+// HRRN scheduler
+void sched_hrrn(cpu_t *c) {
+
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -369,55 +453,22 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
   // struct ptickets tickets_table[NPROC];
-  int winner, tickets_sum;
+  int l = PL1;
   struct cpu *c = mycpu();
   c->proc = 0;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    tickets_sum = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-
-        if (p->state == RUNNABLE) {
-          tickets_sum += p->tickets;
-        }
-    }
-    // cprintf("sum: %d\n", sum);
-
-    winner = random_at_most(tickets_sum);
-    cprintf("%d\n", (int) winner);
-    tickets_sum = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if (p->state != RUNNABLE)
-        continue;
-      
-      tickets_sum += p->tickets;
-      if (tickets_sum < winner)
-        continue;
-      
     
-
-    // Switch to chosen process.  It is the process's job
-    // to release ptable.lock and then reacquire it
-    // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      check_alarm(p);
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+    for (l = PL1; l < N_QUEUE; ++l) {
+      // loop over queues and run their scheduler
+      acquire(&ptable.lock);
+      (*scheduler_level[l])(c);      
+      release(&ptable.lock);
     }
-    release(&ptable.lock);
-    }
+  }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
