@@ -25,14 +25,14 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
-void sched_lottery(cpu_t*);
-void sched_rr(cpu_t*);
-void sched_hrrn(cpu_t*);
+proc_t* sched_lottery(int*);
+proc_t* sched_rr(int*);
+proc_t* sched_hrrn(int*);
 
 // parameter definition for 3 levels of queue.
 // static struct proc *queue[N_QUEUE][NPROC];      // process queue
 // static int n_proc[N_QUEUE] = { -1, -1, -1 }; // number of processes in l3 queue
-void (*scheduler_level[N_QUEUE])(cpu_t*) = { sched_lottery, sched_rr, sched_hrrn };
+proc_t* (*scheduler_level[N_QUEUE])(int*) = { sched_lottery, sched_rr, sched_hrrn };
 
 void
 pinit(void)
@@ -395,12 +395,10 @@ void apply_aging(proc_t *p) {
 }
 
 // Lottery scheduler
-void sched_lottery(cpu_t *c) {
+proc_t* sched_lottery(int *found) {
   struct proc *p;
   int winner, tickets_sum;
-  int empty_queue = 1;
 
-  do {
     tickets_sum = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 
@@ -412,62 +410,58 @@ void sched_lottery(cpu_t *c) {
     }
 
     winner = random_at_most(tickets_sum);
-    // cprintf("%d\n", (int) winner);
     tickets_sum = 0;
 
-    empty_queue = 1;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if (p->state != RUNNABLE)
         continue;
       if (p->priority == PL1) {
-        empty_queue = 0;
         
         tickets_sum += p->tickets;
         if (tickets_sum < winner)
           continue;
+
         
-        run_proc(c, p);
+
+        *found = 1;
+        return p;
       }
     }
-  } while (empty_queue == 0);
+    *found = 0;
+    return 0;
 }
 
 // Round-Robin scheduler
-void sched_rr(cpu_t *c) {
+proc_t* sched_rr(int *found) {
   struct proc *p;
-  int empty_queue = 1;
 
-  do {
-    empty_queue = 1;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-      if (p->priority == PL2) {
+      if (p->priority == PL2 || 1) {
         apply_aging(p);
 
         if (p->state == RUNNABLE) {
-          empty_queue = 0;
 
-          run_proc(c, p);
+          *found = 1;
+          return p;
         }
       }
     }
-  } while (empty_queue == 0);
+    *found = 0;
+    return 0;
 }
 
 // HRRN scheduler
-void sched_hrrn(cpu_t *c) {
+proc_t* sched_hrrn(int *found) {
   struct proc *p, *victor_p = 0;
-  int empty_queue = 1;
   int waiting_time = 0, n_execution_cycles = 0;
   float hrrn = 0, max_hrrn = -1;
 
-  do {
-    empty_queue = 1;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+      max_hrrn = -1;
       if (p->priority == PL3) {
         apply_aging(p);
         
         if (p->state == RUNNABLE) {
-          empty_queue = 0;
           
           // find the process with highest HRRN
           for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
@@ -483,16 +477,16 @@ void sched_hrrn(cpu_t *c) {
           }
 
           if (victor_p == 0) {
-            empty_queue = 1;
             break;
           }
-          p = victor_p;
-          
-          run_proc(c, p);
+
+          *found = 1;
+          return victor_p;
         }
       }
     }
-  } while (empty_queue == 0);
+    *found = 0;
+    return 0;
 }
 
 //PAGEBREAK: 42
@@ -506,8 +500,8 @@ void sched_hrrn(cpu_t *c) {
 void
 scheduler(void)
 {
-  // struct ptickets tickets_table[NPROC];
-  int l = PL1;
+  proc_t *p = 0;
+  int l = PL1, found = 0;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -515,12 +509,18 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
     
+    acquire(&ptable.lock);
     for (l = PL1; l < N_QUEUE; ++l) {
       // loop over queues and run their scheduler
-      acquire(&ptable.lock);
-      (*scheduler_level[l])(c);      
-      release(&ptable.lock);
+      p = (*scheduler_level[l])(&found);
+      if (found) {
+        break;
+      }
     }
+    if (found) {
+      run_proc(c, p);
+    }
+    release(&ptable.lock);
   }
 }
 
