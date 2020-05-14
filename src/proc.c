@@ -399,55 +399,55 @@ proc_t* sched_lottery(int *found) {
   struct proc *p;
   int winner, tickets_sum;
 
-    tickets_sum = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+  tickets_sum = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 
-        if (p->priority == PL1) {
-          if (p->state == RUNNABLE) {
-            tickets_sum += p->tickets;
-          }
-        }
-    }
-
-    winner = random_at_most(tickets_sum);
-    tickets_sum = 0;
-
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if (p->state != RUNNABLE)
-        continue;
       if (p->priority == PL1) {
-        
-        tickets_sum += p->tickets;
-        if (tickets_sum < winner)
-          continue;
-
-        
-
-        *found = 1;
-        return p;
+        if (p->state == RUNNABLE) {
+          tickets_sum += p->tickets;
+        }
       }
+  }
+
+  winner = random_at_most(tickets_sum);
+  tickets_sum = 0;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state != RUNNABLE)
+      continue;
+    if (p->priority == PL1) {
+      
+      tickets_sum += p->tickets;
+      if (tickets_sum < winner)
+        continue;
+
+      
+
+      *found = 1;
+      return p;
     }
-    *found = 0;
-    return 0;
+  }
+  *found = 0;
+  return 0;
 }
 
 // Round-Robin scheduler
 proc_t* sched_rr(int *found) {
   struct proc *p;
 
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-      if (p->priority == PL2 || 1) {
-        apply_aging(p);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+    if (p->priority == PL2 || 1) {
+      apply_aging(p);
 
-        if (p->state == RUNNABLE) {
+      if (p->state == RUNNABLE) {
 
-          *found = 1;
-          return p;
-        }
+        *found = 1;
+        return p;
       }
     }
-    *found = 0;
-    return 0;
+  }
+  *found = 0;
+  return 0;
 }
 
 // HRRN scheduler
@@ -456,37 +456,37 @@ proc_t* sched_hrrn(int *found) {
   int waiting_time = 0, n_execution_cycles = 0;
   float hrrn = 0, max_hrrn = -1;
 
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-      max_hrrn = -1;
-      if (p->priority == PL3) {
-        apply_aging(p);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+    max_hrrn = -1;
+    if (p->priority == PL3) {
+      apply_aging(p);
+      
+      if (p->state == RUNNABLE) {
         
-        if (p->state == RUNNABLE) {
-          
-          // find the process with highest HRRN
-          for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
-            if (p->state == RUNNABLE && p->priority == PL3) {
-              waiting_time = ticks - p->arrival_time;
-              n_execution_cycles = p->clicks;
-              hrrn = ((float)waiting_time)/n_execution_cycles;
-              if (hrrn > max_hrrn) {
-                max_hrrn = hrrn;
-                victor_p = p;
-              }
+        // find the process with highest HRRN
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+          if (p->state == RUNNABLE && p->priority == PL3) {
+            waiting_time = ticks - p->arrival_time;
+            n_execution_cycles = p->clicks;
+            hrrn = ((float)waiting_time)/n_execution_cycles;
+            if (hrrn > max_hrrn) {
+              max_hrrn = hrrn;
+              victor_p = p;
             }
           }
-
-          if (victor_p == 0) {
-            break;
-          }
-
-          *found = 1;
-          return victor_p;
         }
+
+        if (victor_p == 0) {
+          break;
+        }
+
+        *found = 1;
+        return victor_p;
       }
     }
-    *found = 0;
-    return 0;
+  }
+  *found = 0;
+  return 0;
 }
 
 //PAGEBREAK: 42

@@ -34,9 +34,9 @@ main (int argc, char **argv) {
             exit();
         }
     }
-    printf(1, "end\n");
     for (k = 0; k < n; ++k) {
         wait();
     }
+    printf(1, "end\n");
     exit();
 }
