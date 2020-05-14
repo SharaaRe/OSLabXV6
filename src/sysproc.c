@@ -129,3 +129,13 @@ int
 sys_read_registers(void) {
   return read_registers();
 }
+
+
+int 
+sys_set_tickets(void) {
+  int ticket_value;
+  if (argint(0, &ticket_value) < 0)
+    return -1;
+  
+  return set_tickets(ticket_value);
+}

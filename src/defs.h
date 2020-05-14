@@ -126,6 +126,7 @@ void            check_alarm(struct proc*);
 int		        print_syscalls(void);
 int             set_edx(int);
 int             read_registers(void);
+int             set_tickets(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

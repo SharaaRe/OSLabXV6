@@ -353,8 +353,8 @@ void
 scheduler(void)
 {
   struct proc *p;
-  // struct ptickets tickets_table[NPROC];
-  int winner, tickets_sum;
+  int tickets_sum;
+  long winner;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -370,10 +370,8 @@ scheduler(void)
           tickets_sum += p->tickets;
         }
     }
-    // cprintf("sum: %d\n", sum);
-
     winner = random_at_most(tickets_sum);
-    cprintf("%d\n", (int) winner);
+
     tickets_sum = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if (p->state != RUNNABLE)
@@ -767,4 +765,16 @@ read_registers(void) {
   
   release(&ptable.lock);
   return 26;
+}
+
+int
+set_tickets(int value) {
+
+  acquire(&ptable.lock);
+  
+  struct proc *p = myproc();
+  p->tickets = value;
+
+  release(&ptable.lock);
+  return 0;
 }
