@@ -26,5 +26,6 @@
 #define SYS_set_edx 25
 #define SYS_read_registers 26
 #define SYS_ps 27
-#define SYS_set_queue 28
+#define SYS_set_tickets 28
+#define SYS_set_queue 29
 

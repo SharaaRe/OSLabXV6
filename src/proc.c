@@ -913,6 +913,20 @@ ps() {
   return 27;
 }
 
+int
+set_tickets(int value) {
+  if (value <= 0) {
+    cprintf("tickets value must be positive integer.");
+    return -1;
+  }
+
+  acquire(&ptable.lock);
+  struct proc *p = myproc();
+  p->tickets = value;
+  release(&ptable.lock);
+  return 0;
+}
+
 //set process queue
 int
 set_queue(int value) {

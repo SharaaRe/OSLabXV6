@@ -109,6 +109,7 @@ extern int sys_print_syscalls(void);
 extern int sys_set_edx(void);
 extern int sys_read_registers(void);
 extern int sys_ps(void);
+extern int sys_set_tickets(void);
 extern int sys_set_queue(void);
 
 static int (*syscalls[])(void) = {
@@ -139,6 +140,7 @@ static int (*syscalls[])(void) = {
 [SYS_read_registers]      sys_read_registers,
 [SYS_set_alarm]           sys_set_alarm,
 [SYS_ps]                  sys_ps,
+[SYS_set_tickets]         SYS_set_tickets,
 [SYS_set_queue]           sys_set_queue,
 };
 
