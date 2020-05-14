@@ -138,11 +138,11 @@ sys_ps ( void ) {
 
 // set process tickets
 int
-sys_set_queue(void) {
+sys_set_tickets(void) {
   int value;
   if (argint(0, &value) < 0)
     return -1;
-  return set_queue(value);
+  return set_tickets(value);
 }
 
 //set process queue
