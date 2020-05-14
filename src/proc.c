@@ -511,6 +511,7 @@ scheduler(void)
     
     acquire(&ptable.lock);
     for (l = PL1; l < N_QUEUE; ++l) {
+      found = 0;
       // loop over queues and run their scheduler
       p = (*scheduler_level[l])(&found);
       if (found) {
