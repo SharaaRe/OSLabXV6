@@ -877,3 +877,27 @@ read_registers(void) {
   release(&ptable.lock);
   return 26;
 }
+
+// print processes status
+int
+ps() {
+  struct proc *p;
+  char *state[] = { "UNUSED", "EMBRYO", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE" };
+  char *priority[] = { "1", "2", "3" };
+
+  // enable interupts on this processor.
+  sti();
+
+  // loop over process table looking for process with pid.
+  acquire(&ptable.lock);
+  cprintf("name \t pid \t state \t\t priority \t create time \t \n");
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+    if (p->pid == 0) 
+      continue;
+    cprintf("%s \t %d \t %s \t %s \t\t %d \t \n", 
+    p->name, p->pid, state[p->state], priority[p->priority], p->arrival_time);
+  }
+
+  release(&ptable.lock);
+  return 27;
+}

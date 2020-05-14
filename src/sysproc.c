@@ -129,3 +129,9 @@ int
 sys_read_registers(void) {
   return read_registers();
 }
+
+// print processes
+int
+sys_ps ( void ) {
+  return ps();
+}
