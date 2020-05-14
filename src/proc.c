@@ -439,7 +439,48 @@ void sched_rr(cpu_t *c) {
 
 // HRRN scheduler
 void sched_hrrn(cpu_t *c) {
+  struct proc *p, *victor_p = 0;
+  int empty_queue = 1;
+  int waiting_time = 0, n_execution_cycles = 0;
+  float hrrn = 0, max_hrrn = -1;
 
+  do {
+    empty_queue = 1;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+      if (p->state == RUNNABLE && p->priority == PL3) {
+        empty_queue = 0;
+        
+        // find the process with highest HRRN
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+          if (p->state == RUNNABLE && p->priority == PL3) {
+            waiting_time = ticks - p->arrival_time;
+            n_execution_cycles = p->clicks;
+            hrrn = ((float)waiting_time)/n_execution_cycles;
+            if (hrrn > max_hrrn) {
+              max_hrrn = hrrn;
+              victor_p = p;
+            }
+          }
+        }
+
+        if (victor_p == 0) {
+          empty_queue = 1;
+          break;
+        }
+        p = victor_p;
+        p->clicks = p->clicks + 1;
+        
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+        check_alarm(p);
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        c->proc = 0;
+      }
+    }
+  } while (empty_queue == 0);
 }
 
 //PAGEBREAK: 42
