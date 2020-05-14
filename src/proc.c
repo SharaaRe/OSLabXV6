@@ -769,6 +769,10 @@ read_registers(void) {
 
 int
 set_tickets(int value) {
+  if (value <= 0) {
+    cprintf("Tickets value must be greater than zero.");
+    return -1;
+  }
 
   acquire(&ptable.lock);
   
