@@ -56,6 +56,7 @@ struct proc {
   char name[16];                    // Process name (debugging)
   int alarm_time;                   // bigger than 0 if an alarm is set
   struct _sysclog sysclog[NLOGPAIR]; // (call number, return value) pair for each system call
+  int tickets;                      //the number of tickets for lottery scheduling
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "rand.h"
 
 struct {
   struct spinlock lock;
@@ -112,6 +113,7 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  p->tickets = 10; //edit
 
   return p;
 }
@@ -351,22 +353,41 @@ void
 scheduler(void)
 {
   struct proc *p;
+  // struct ptickets tickets_table[NPROC];
+  int winner, tickets_sum;
   struct cpu *c = mycpu();
   c->proc = 0;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+    tickets_sum = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+        if (p->state == RUNNABLE) {
+          tickets_sum += p->tickets;
+        }
+    }
+    // cprintf("sum: %d\n", sum);
+
+    winner = random_at_most(tickets_sum);
+    cprintf("%d\n", (int) winner);
+    tickets_sum = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p->state != RUNNABLE)
+        continue;
+      
+      tickets_sum += p->tickets;
+      if (tickets_sum < winner)
+        continue;
+      
+    
+
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
@@ -379,8 +400,7 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
-  }
+    }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
