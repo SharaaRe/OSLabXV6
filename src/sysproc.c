@@ -124,6 +124,12 @@ sys_print_syscalls(void)
   return print_syscalls();
 }
 
+int
+sys_count_syscalls(void)
+{
+  return count_syscalls();
+}
+
 // set edx register value
 int
 sys_set_edx(void) {

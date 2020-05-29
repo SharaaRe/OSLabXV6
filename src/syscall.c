@@ -108,6 +108,7 @@ extern int sys_set_alarm(void);
 extern int sys_print_syscalls(void);
 extern int sys_set_edx(void);
 extern int sys_read_registers(void);
+extern int sys_count_syscalls(void);
 extern int sys_get_state(void);
 
 static int (*syscalls[])(void) = {
@@ -138,6 +139,7 @@ static int (*syscalls[])(void) = {
 [SYS_read_registers]      sys_read_registers,
 [SYS_set_alarm]           sys_set_alarm,
 [SYS_get_state]           sys_get_state,
+[SYS_count_syscalls]      sys_count_syscalls,
 };
 
 void
