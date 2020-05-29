@@ -125,6 +125,7 @@ int             count_num_of_digits(void);
 void            set_alarm(int);
 void            check_alarm(struct proc*);
 int		        print_syscalls(void);
+int		        count_syscalls(void);
 int             set_edx(int);
 int             read_registers(void);
 

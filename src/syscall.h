@@ -25,3 +25,4 @@
 #define SYS_print_syscalls 24
 #define SYS_set_edx 25
 #define SYS_read_registers 26
+#define SYS_count_syscalls 27

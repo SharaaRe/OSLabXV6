@@ -681,6 +681,37 @@ print_syscalls(void)
   return 23;
 }
 
+int
+count_syscalls(void)
+{
+  int n_syscalls = 0;
+
+  struct proc *p;
+  struct _sysclog *s;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == 0) continue;
+    for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
+      if(s->callno == 0) break;
+      ++n_syscalls;
+    }
+  }
+  release(&ptable.lock);
+
+  acquire(&pptable.lock);
+  for(p = pptable.proc; p < &pptable.proc[NPROC]; p++) {
+    if(p->pid == 0) continue;
+    for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
+      if(s->callno == 0) break;
+      ++n_syscalls;
+    }
+  }
+  release(&pptable.lock);
+
+  return n_syscalls;
+}
+
 
 // simply set edx register to value
 int
