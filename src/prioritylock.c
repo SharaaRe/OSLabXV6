@@ -21,6 +21,8 @@ acquirepriority(struct prioritylock *lk)
 {
     acquire(&lk->lk);
     int pid = myproc()->pid;
+
+    // add process to queue
     if (lk->locked) {
         int i;
         for (i = NPROC; i >= 0; i--) {
@@ -29,6 +31,9 @@ acquirepriority(struct prioritylock *lk)
             lk->queue[i + 1] = lk->queue[i];
         }
         lk->queue[i] = pid;
+    } else {
+        // add when queue is empty
+        lk->queue[0] = pid;
     }
 
     while (lk->locked && lk->queue[0] != pid)
@@ -42,7 +47,7 @@ acquirepriority(struct prioritylock *lk)
 
 
 void
-releaseticketlock(struct prioritylock* lk)
+releasepriority(struct prioritylock* lk)
 {
     acquire(&lk->lk);
     if (lk->pid != myproc()->pid)
