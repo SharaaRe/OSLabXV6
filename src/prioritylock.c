@@ -34,18 +34,27 @@ acquirepriority(struct prioritylock *lk)
     while (lk->locked && lk->queue[0] != pid)
         sleep(lk, &lk->lk);
 
-    if (lk->queue[0] == pid) {
-        for (int i = 1; i < NPROC; i++){
-            if (lk->queue[i] == 0)
-                break;
-            lk->queue[i - 1] = lk->queue[i];
-        }
-    }
+
     lk->locked = 1;
     lk->pid = pid;
     release(&lk->lk);
 }
 
 
+void
+releaseticketlock(struct prioritylock* lk)
+{
+    acquire(&lk->lk);
+    if (lk->pid != myproc()->pid)
+        panic("invalid release!");
 
+    for (int i = 1; i < NPROC; i++){
+        if (lk->queue[i] == 0)
+            break;
+        lk->queue[i - 1] = lk->queue[i];
+    }
+
+    wakeup(lk); 
+    release(&lk->lk);
+}
 

@@ -1,7 +1,6 @@
 #ifndef _PRIORITY_LOCK_
 #define _PRIORITY_LOCK_
 
-#include "spinlock.h"
 
 struct prioritylock
 {
@@ -14,7 +13,9 @@ struct prioritylock
     int pid; //process holding lock
 };
 
-
+void initprioritylock(struct prioritylock*, char*);
+void acquirepriority(struct prioritylock*);
+void releasepriority(struct prioritylock*);
 
 
 #endif
