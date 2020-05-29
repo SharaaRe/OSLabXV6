@@ -1,6 +1,9 @@
 #ifndef _PRIORITY_LOCK_
 #define _PRIORITY_LOCK_
 
+#include "types.h"
+#include "spinlock.h"
+#include "param.h"
 
 struct prioritylock
 {
