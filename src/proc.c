@@ -684,32 +684,17 @@ print_syscalls(void)
 int
 count_syscalls(void)
 {
-  int n_syscalls = 0;
+  int n_syscalls_per_cpu = 0, i = 0;
 
-  struct proc *p;
-  struct _sysclog *s;
+  struct cpu c;
 
-  acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if(p->pid == 0) continue;
-    for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
-      if(s->callno == 0) break;
-      ++n_syscalls;
-    }
+  for (c = cpus[0]; i < NCPU; ++i) {
+    n_syscalls_per_cpu += c.n_syscalls;
   }
-  release(&ptable.lock);
 
-  acquire(&pptable.lock);
-  for(p = pptable.proc; p < &pptable.proc[NPROC]; p++) {
-    if(p->pid == 0) continue;
-    for(s = p->sysclog; s < &p->sysclog[NLOGPAIR]; s++) {
-      if(s->callno == 0) break;
-      ++n_syscalls;
-    }
-  }
-  release(&pptable.lock);
+  cprintf("per cpu sum: %d\n", n_syscalls_per_cpu);
 
-  return n_syscalls;
+  return g_n_syscalls;
 }
 
 

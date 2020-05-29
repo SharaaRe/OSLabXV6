@@ -168,4 +168,8 @@ syscall(void)
             curproc->pid, curproc->name, num);
     curproc->tf->eax = -1;
   }
+  pushcli();
+  mycpu()->n_syscalls += 1;
+  popcli();
+  ++g_n_syscalls;
 }

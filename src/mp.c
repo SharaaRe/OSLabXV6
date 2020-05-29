@@ -14,6 +14,7 @@
 struct cpu cpus[NCPU];
 int ncpu;
 uchar ioapicid;
+int g_n_syscalls = 0;
 
 static uchar
 sum(uchar *addr, int len)
@@ -108,6 +109,7 @@ mpinit(void)
       proc = (struct mpproc*)p;
       if(ncpu < NCPU) {
         cpus[ncpu].apicid = proc->apicid;  // apicid may differ from ncpu
+        cpus[ncpu].n_syscalls = 0;
         ncpu++;
       }
       p += sizeof(struct mpproc);
