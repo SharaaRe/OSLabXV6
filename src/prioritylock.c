@@ -49,12 +49,30 @@ releaseticketlock(struct prioritylock* lk)
         panic("invalid release!");
 
     for (int i = 1; i < NPROC; i++){
+        lk->queue[i - 1] = lk->queue[i];
         if (lk->queue[i] == 0)
             break;
-        lk->queue[i - 1] = lk->queue[i];
+    }
+    if (lk->queue[0] == 0){
+        lk->locked = 0;
+        lk->pid = 0;
     }
 
+
+
     wakeup(lk); 
+    release(&lk->lk);
+}
+
+void
+printpriorityqueue(struct prioritylock* lk)
+{
+    acquire(&lk->lk);
+    cprintf("priority queue:\n");
+    for (int i = 0; i < NPROC && lk->queue[i]; i++){
+        cprintf("%d->", lk->queue[i]);
+    }
+    cprintf("end\n");
     release(&lk->lk);
 }
 
