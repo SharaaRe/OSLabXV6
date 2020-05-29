@@ -128,6 +128,7 @@ int		        print_syscalls(void);
 int		        count_syscalls(void);
 int             set_edx(int);
 int             read_registers(void);
+int             get_state(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

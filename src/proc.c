@@ -779,3 +779,22 @@ read_registers(void) {
   release(&ptable.lock);
   return 26;
 }
+
+
+// returns state of a process by its pid
+// return -1 if the pid is not found
+int
+get_state(int pid) 
+{
+  struct proc *p;
+  int state = -1;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == pid) {
+      state = p->state;
+      break;
+    }
+  }
+  release(&ptable.lock);
+  return state;
+}
