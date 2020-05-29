@@ -42,6 +42,13 @@ acquirepriority(struct prioritylock *lk)
         lk->queue[0] = pid;
     }
 
+    // print queue after enqueue
+    cprintf("priority queue after enqueue of %d:\n", pid);
+    for (int i = 0; i < NPROC && lk->queue[i]; i++){
+        cprintf("%d->", lk->queue[i]);
+    }
+    cprintf("end\n");
+
     while (lk->locked && lk->queue[0] != pid)
         sleep(lk, &lk->lk);
 

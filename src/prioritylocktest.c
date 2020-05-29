@@ -21,8 +21,13 @@ int main() {
 
     if (pid == 0) {
         acquirepriority(&testlk);
+        // critical section
         printf(1, "%d acuired lock.\n", getpid());
+        printpriorityqueue(&testlk);
+        for (int i = 0; i < 1000000; i++);
         releasepriority(&testlk);
+        printf(1, "%d released lock.\n", getpid());
+
     } else {
         for (int i = 0; i < NCHILD; i++) {
             wait();
