@@ -16,6 +16,7 @@ struct prioritylock
 void initprioritylock(struct prioritylock*, char*);
 void acquirepriority(struct prioritylock*);
 void releasepriority(struct prioritylock*);
+void printpriorityqueue(struct prioritylock*);
 
 
 #endif
