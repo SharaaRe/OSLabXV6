@@ -19,8 +19,8 @@ initprioritylock(struct prioritylock* lk, char* name) {
 void
 acquirepriority(struct prioritylock *lk)
 {
-    acquire(&lk->lk);
     int pid = myproc()->pid;
+    acquire(&lk->lk);
 
     // add process to queue
     if (lk->locked) {
@@ -62,15 +62,22 @@ acquirepriority(struct prioritylock *lk)
 void
 releasepriority(struct prioritylock* lk)
 {
+    int pid = myproc()->pid;
+    int valid_head = 0;
     acquire(&lk->lk);
-    if (lk->pid != myproc()->pid)
+    if (lk->pid != pid)
         panic("invalid release!");
 
-    for (int i = 1; i < NPROC; i++){
-        lk->queue[i - 1] = lk->queue[i];
-        if (lk->queue[i] == 0)
-            break;
+    while(!valid_head) {
+        for (int i = 1; i < NPROC; i++){
+            lk->queue[i - 1] = lk->queue[i];
+            if (lk->queue[i] == 0)
+                break;
+        }
+        if(get_state(lk->queue[0]) == SLEEPING)
+            valid_head = 1;
     }
+
     if (lk->queue[0] == 0){
         lk->locked = 0;
         lk->pid = 0;
