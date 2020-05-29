@@ -107,6 +107,15 @@ sys_set_alarm(void)
   return 0;
 }
 
+int
+sys_get_state(void)
+{
+  int pid;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return get_state(pid);
+}
+
 
 // print outs all system calls of each process
 int

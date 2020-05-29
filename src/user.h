@@ -28,6 +28,7 @@ void set_alarm(int);
 int print_syscalls(void);
 int set_edx(int);
 int read_registers(void);
+int get_state(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
