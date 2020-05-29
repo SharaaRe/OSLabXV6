@@ -1,0 +1,29 @@
+برای رفع این مشکل در سیستم عامل
+\lr{xv6}
+می‌توان در ایتدای اسکوپ تابع
+\lr{acquiresleep()}
+بررسی کرد که آیا
+\lr{pid}
+پردازه‌ی درخواست کننده با
+\lr{pid}
+پردازه‌ی صاحب قفل یکسان است یا نه. در حقیقت:
+\begin{latin}
+\begin{lstlisting}[language=c]
+void
+releasesleep(struct sleeplock *lk)
+{
+  if (lk->pid == myproc()->pid)
+  {
+	acquire(&lk->lk);
+	lk->locked = 0;
+	lk->pid = 0;
+	wakeup(lk);
+	release(&lk->lk);
+  }
+}
+\end{lstlisting}
+\end{latin}
+
+قفل معادل با این قفل در هسته‌ی لینوکس سمافور نام دارد. این قفل پردازه‌های در انتظار گرفتن قفل را در یک صف نگه می‌دارد و وضعیت آن‌ها را به
+\lr{SLEEPING}
+تغییر می‌دهد. هرگاه قفل آزاد شد، یکی از این پردازه‌ها از خواب بیدار شده و به قفل دسترسی می‌یابد.
