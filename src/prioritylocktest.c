@@ -16,7 +16,7 @@ int main() {
         
         if (pid > 0) {
             pid = fork(); 
-            // printf(1, "pid: %d forked\n", pid);
+            // printf(1, "%d\n", pid);
         }
     }  
     if (pid < 0)
