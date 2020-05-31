@@ -110,6 +110,8 @@ extern int sys_set_edx(void);
 extern int sys_read_registers(void);
 extern int sys_count_syscalls(void);
 extern int sys_get_state(void);
+extern int sys_prioritylocktest(void);
+extern int sys_initprioritylocktest(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]                sys_fork,
@@ -140,6 +142,9 @@ static int (*syscalls[])(void) = {
 [SYS_set_alarm]           sys_set_alarm,
 [SYS_get_state]           sys_get_state,
 [SYS_count_syscalls]      sys_count_syscalls,
+[SYS_prioritylocktest]    sys_prioritylocktest,
+[SYS_initprioritylocktest] sys_initprioritylocktest,
+
 };
 
 void

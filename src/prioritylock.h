@@ -14,7 +14,9 @@ struct prioritylock
     //for debugging
     char* name;
     int pid; //process holding lock
-};
+} testlk;
+// // for user test
+// struct prioritylock testlk;
 
 void initprioritylock(struct prioritylock*, char*);
 void acquirepriority(struct prioritylock*);

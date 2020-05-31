@@ -28,13 +28,13 @@ acquirepriority(struct prioritylock *lk)
         if (lk->queue[NPROC - 1] != 0)
             panic("full queue");
 
-        for (i = NPROC - 1; i >= 0; i--) {
+        for (i = NPROC - 1; i > 0; i--) {
             if (lk->queue[i] == 0)
                 continue;
                 
             if (lk->queue[i] != 0 && lk->queue[i] <= pid)
                 break;
-            lk->queue[i + 1] = lk->queue[i];
+            lk->queue[i] = lk->queue[i - 1];
         }
         lk->queue[i] = pid;
     } else {

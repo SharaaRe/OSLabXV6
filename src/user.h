@@ -30,6 +30,8 @@ int count_syscalls(void);
 int set_edx(int);
 int read_registers(void);
 int get_state(int);
+int initprioritylocktest(void);
+int prioritylocktest(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

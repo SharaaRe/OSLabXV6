@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "prioritylock.h"
 
 struct {
   struct spinlock lock;
@@ -644,7 +645,7 @@ print_syscalls(void)
     "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
     "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
     "close", "count_num_of_digits", "set_alarm", "print_syscalls",
-    "set_edx", "read_registers"};
+    "set_edx", "read_registers", "get_state", "initprioritylocktest", "prioritylocktest"};
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
@@ -782,4 +783,26 @@ get_state(int pid)
   }
   release(&ptable.lock);
   return state;
+}
+
+int 
+prioritylocktest(void)
+{
+  acquirepriority(&testlk);
+  // critical section
+  cprintf("%d acuired lock.\n", myproc()->pid);
+  printpriorityqueue(&testlk);
+  // for (int i = 0; i < 10000; i++);
+
+  releasepriority(&testlk);
+  cprintf("%d released lock.\n", myproc()->pid);
+
+  return 0;
+}
+
+int
+initprioritylocktest(void)
+{
+  initprioritylock(&testlk, "test");
+  return 0;
 }

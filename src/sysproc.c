@@ -144,3 +144,16 @@ int
 sys_read_registers(void) {
   return read_registers();
 }
+
+
+int
+sys_prioritylocktest(void)
+{
+  return prioritylocktest();
+}
+
+int
+sys_initprioritylocktest(void)
+{
+  return initprioritylocktest();
+}
