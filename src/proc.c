@@ -645,7 +645,7 @@ print_syscalls(void)
     "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
     "uptime", "open", "write", "mknod", "unlink", "link", "mkdir",
     "close", "count_num_of_digits", "set_alarm", "print_syscalls",
-    "set_edx", "read_registers", "get_state", "initprioritylocktest", "prioritylocktest"};
+    "set_edx", "read_registers", "get_state", "count_syscalls", "initprioritylocktest", "prioritylocktest"};
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
@@ -685,17 +685,22 @@ print_syscalls(void)
 int
 count_syscalls(void)
 {
-  int n_syscalls_per_cpu = 0, i = 0;
+  int n_syscalls_per_cpu = 0, i = 0, g_n_syscalls_copy = 0;
 
-  struct cpu c;
-
-  for (c = cpus[0]; i < NCPU; ++i) {
-    n_syscalls_per_cpu += c.n_syscalls;
+  for (i = 0; i < NCPU; ++i) {
+    cprintf("cpu %d number of syscalls: %d\n", i, cpus[i].n_syscalls);
+    n_syscalls_per_cpu += cpus[i].n_syscalls;
   }
+  g_n_syscalls_copy = g_n_syscalls;
 
   cprintf("per cpu sum: %d\n", n_syscalls_per_cpu);
 
-  return g_n_syscalls;
+  for (i = 0; i < NCPU; ++i) {
+    cpus[i].n_syscalls = 0;
+  }
+  g_n_syscalls = 0;
+
+  return g_n_syscalls_copy;
 }
 
 
