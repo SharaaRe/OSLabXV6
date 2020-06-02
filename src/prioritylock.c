@@ -49,8 +49,9 @@ acquirepriority(struct prioritylock *lk)
     }
     cprintf("end\n");
 
-    while (lk->locked && lk->queue[0] != pid)
+    while (lk->locked && lk->pid != pid) {
         sleep(lk, &lk->lk);
+    }
 
     
     lk->locked = 1;
@@ -69,18 +70,20 @@ releasepriority(struct prioritylock* lk)
         panic("invalid release!");
 
     while(!valid_head) {
+        if(lk->queue[0] == 0 || get_state(lk->queue[0]) == SLEEPING) {
+            valid_head = 1;
+            lk->pid = lk->queue[0];
+        }
+
         for (int i = 1; i < NPROC; i++){
             lk->queue[i - 1] = lk->queue[i];
             if (lk->queue[i] == 0)
                 break;
         }
-        if(get_state(lk->queue[0]) == SLEEPING)
-            valid_head = 1;
     }
 
-    if (lk->queue[0] == 0){
+    if (lk->pid == 0){
         lk->locked = 0;
-        lk->pid = 0;
     }
 
 
