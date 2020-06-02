@@ -790,12 +790,12 @@ prioritylocktest(void)
 {
   acquirepriority(&testlk);
   // critical section
-  cprintf("%d acuired lock.\n", myproc()->pid);
-  printpriorityqueue(&testlk);
-  for (int i = 0; i < 1000000; i++);
 
+  printpriorityqueue(&testlk);
+  for (int i = 0; i < 10000000; i++);
+  cprintf("\n");
   releasepriority(&testlk);
-  cprintf("%d released lock.\n", myproc()->pid);
+
 
   return 0;
 }

@@ -16,13 +16,13 @@ int main() {
         
         if (pid > 0) {
             pid = fork(); 
-            // printf(1, "%d\n", pid);
         }
     }  
     if (pid < 0)
         printf(2, "fork error\n");
 
     if (pid == 0) {
+        prioritylocktest();
         prioritylocktest();
         exit();
 
@@ -31,7 +31,7 @@ int main() {
             wait();
         }
 
-        printf(1, "End of test program");
+        printf(1, "End of test program.\n");
     }
 
 

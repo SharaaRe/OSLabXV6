@@ -49,10 +49,17 @@ acquirepriority(struct prioritylock *lk)
     }
     cprintf("end\n");
 
-    while (lk->locked && lk->pid != pid) {
+    while (lk->locked || lk->queue[0] != pid) {
         sleep(lk, &lk->lk);
     }
 
+    // shift to the left
+    for (int i = 1; i < NPROC; i++){
+        lk->queue[i - 1] = lk->queue[i];
+        if (lk->queue[i] == 0)
+            break;
+    }
+    cprintf("%d acuired lock.\n", pid);
     
     lk->locked = 1;
     lk->pid = pid;
@@ -64,18 +71,21 @@ void
 releasepriority(struct prioritylock* lk)
 {
     int pid = myproc()->pid;
-    int valid_head = 0;
+
     acquire(&lk->lk);
     if (lk->pid != pid)
         panic("invalid release!");
 
-    while(!valid_head) {
-        if(lk->queue[0] == 0 || get_state(lk->queue[0]) == SLEEPING) {
-            valid_head = 1;
-            lk->pid = lk->queue[0];
+    int i;
+    while(1) {
+        if(lk->queue[0] == 0 || get_state(lk->queue[0]) != ZOMBIE) {
+            lk->pid = 0;
+            cprintf("%d released lock.\n", pid);
+            break;
         }
+        // if head process is zombie this will continue to shif left
+        for (i = 1; i < NPROC; i++){
 
-        for (int i = 1; i < NPROC; i++){
             lk->queue[i - 1] = lk->queue[i];
             if (lk->queue[i] == 0)
                 break;
