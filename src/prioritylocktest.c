@@ -24,6 +24,7 @@ int main() {
 
     if (pid == 0) {
         prioritylocktest();
+        exit();
 
     } else {
         for (int i = 0; i < NCHILD; i++) {
@@ -34,5 +35,5 @@ int main() {
     }
 
 
-    return 0;
+    exit();
 }
