@@ -74,7 +74,7 @@ releasepriority(struct prioritylock* lk)
             if (lk->queue[i] == 0)
                 break;
         }
-        if(get_state(lk->queue[0]) == SLEEPING)
+        if(lk->queue[0] == 0 || get_state(lk->queue[0]) == SLEEPING)
             valid_head = 1;
     }
 
