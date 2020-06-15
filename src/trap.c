@@ -91,6 +91,7 @@ trap(struct trapframe *tf)
             "eip 0x%x addr 0x%x--kill proc\n",
             myproc()->pid, myproc()->name, tf->trapno,
             tf->err, cpuid(), tf->eip, rcr2());
+    cprintf("eip: 0x%x\n", *(int*)(tf->eip));
     myproc()->killed = 1;
   }
 
