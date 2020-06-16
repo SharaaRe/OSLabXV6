@@ -1,0 +1,7 @@
+[2].                   [6]
+[3].                   [7]
+[4].                   [8]
+[5].                   [9]
+
+Inner              Second page table
+Page table
