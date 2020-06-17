@@ -10,7 +10,7 @@
 struct shared_memory {
   void* addrs[3];
   int counts[3];
-}shmem;
+} shmem;
 
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
@@ -390,30 +390,36 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
-
 void*
 shmgetvm(pde_t *pgdir, int id)
 {
   char *mem;
   uint a;
-  if (id < 1 || id > 3)
-    return NULL;
+  // uint *aa;
+  pte_t *pte;
+  if (id < 1 || id > 3) return NULL;
 
   a = PGSIZE * id;
+
   if (shmem.counts[id - 1] == 0) {
     mem = kalloc();
     if(mem == 0){
       cprintf("allocuvm out of memory\n");
-      // deallocuvm(pgdir, newsz, oldsz);
-      return 0;
+      return NULL;
     }
-
-  } else {
-    mem = shmem.addrs[id - 1];
+    shmem.addrs[id - 1] = mem;
+    memset(mem, 0, PGSIZE);
   }
-  
 
-  memset(mem, 0, PGSIZE);
+  mem = shmem.addrs[id - 1];
+  // aa = (char*)PGROUNDDOWN((uint)a);
+  pte = walkpgdir(pgdir, &a, 0);
+
+  if(pte[31] == 1) {
+    cprintf("Page already shared!\n");
+    return NULL;
+  }
+
   if(mappages(pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
     cprintf("allocuvm out of memory (2)\n");
     kfree(mem);
@@ -421,8 +427,8 @@ shmgetvm(pde_t *pgdir, int id)
   }
   shmem.counts[id - 1]++;
 
+  cprintf("Page shared successfully!\n");
   return (void*) a;
-
 }
 
 //PAGEBREAK!

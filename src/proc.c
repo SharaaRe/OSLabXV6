@@ -749,8 +749,9 @@ read_registers(void) {
   return 26;
 }
 
+
 void*
-shmget(int id)
+shmget(int shared_page_id)
 {
-  return shmgetvm(myproc()->pgdir, id);
+  return shmgetvm(myproc()->pgdir, shared_page_id);
 }

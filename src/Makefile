@@ -187,6 +187,7 @@ UPROGS=\
 	_psc\
 	_pregs\
 	_nullread\
+	_shmtest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
