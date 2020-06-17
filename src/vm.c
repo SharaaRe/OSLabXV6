@@ -293,7 +293,7 @@ freevm(pde_t *pgdir)
   if(pgdir == 0)
     panic("freevm: no pgdir");
   deallocuvm(pgdir, KERNBASE, PGSIZE * 4);
-  for(i = 4; i < NPDENTRIES; i++){
+  for(i = 0; i < NPDENTRIES; i++){
     if(pgdir[i] & PTE_P){
       char * v = P2V(PTE_ADDR(pgdir[i]));
       kfree(v);
@@ -390,13 +390,30 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+
+int
+ispgshared(pde_t *pgdir, uint id)
+{
+  uint a;
+  char* aa;
+  pte_t *pte;
+
+  a = PGSIZE * id;
+  aa = (char*)PGROUNDDOWN((uint)a);
+
+  pte = walkpgdir(pgdir, aa, 0);
+  if(*pte & PTE_P) {
+    return 1;
+  }
+  return 0;
+}
+
+
 void*
 shmgetvm(pde_t *pgdir, int id)
 {
   char *mem;
   uint a;
-  // uint *aa;
-  pte_t *pte;
   if (id < 1 || id > 3) return NULL;
 
   a = PGSIZE * id;
@@ -412,10 +429,7 @@ shmgetvm(pde_t *pgdir, int id)
   }
 
   mem = shmem.addrs[id - 1];
-  // aa = (char*)PGROUNDDOWN((uint)a);
-  pte = walkpgdir(pgdir, &a, 0);
-
-  if(*pte & PTE_P) {
+  if(ispgshared(pgdir, id)) {
     return NULL;
   }
 
@@ -427,19 +441,6 @@ shmgetvm(pde_t *pgdir, int id)
   shmem.counts[id - 1]++;
 
   return (void*) a;
-}
-
-int
-ispgshared(pde_t *pgdir, uint id)
-{
-  uint a;
-  pte_t *pte;
-  a = PGSIZE * id;
-  pte = walkpgdir(pgdir, &a, 0);
-  if(*pte & PTE_P) {
-    return 1;
-  }
-  return 0;
 }
 
 void
