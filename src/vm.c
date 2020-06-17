@@ -440,6 +440,7 @@ shmgetvm(pde_t *pgdir, int id)
   }
   shmem.counts[id - 1]++;
 
+  // lcr3(V2P(pgdir));
   return (void*) a;
 }
 
