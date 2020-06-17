@@ -431,6 +431,30 @@ shmgetvm(pde_t *pgdir, int id)
   return (void*) a;
 }
 
+int
+ispgshared(pde_t *pgdir, uint id)
+{
+  uint a;
+  pte_t *pte;
+  a = PGSIZE * id;
+  pte = walkpgdir(pgdir, &a, 0);
+  if(*pte & PTE_P) {
+    return 1;
+  }
+  return 0;
+}
+
+void
+passpg(pde_t *ppgdir, pde_t *cpgdir)
+{
+  uint id;
+  for(id=1; id<=3; id++) {
+    if(ispgshared(ppgdir, id)) {
+      shmgetvm(cpgdir, id);
+    }
+  }
+}
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!

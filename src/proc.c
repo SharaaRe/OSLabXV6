@@ -213,9 +213,7 @@ fork(void)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
   pid = np->pid;
-
   acquire(&ptable.lock);
-
   np->state = RUNNABLE;
 
   for(s = np->sysclog; s < &np->sysclog[NLOGPAIR]; s++) {
@@ -223,8 +221,9 @@ fork(void)
     s->retval = 0;
   }
 
-  release(&ptable.lock);
+  passpg(ppgdir, cpgdir);
 
+  release(&ptable.lock);
   return pid;
 }
 
