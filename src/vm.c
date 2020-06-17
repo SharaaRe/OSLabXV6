@@ -7,6 +7,11 @@
 #include "proc.h"
 #include "elf.h"
 
+struct shared_memory {
+  void* addrs[3];
+  int counts[3];
+}shmem;
+
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
 
@@ -287,8 +292,8 @@ freevm(pde_t *pgdir)
 
   if(pgdir == 0)
     panic("freevm: no pgdir");
-  deallocuvm(pgdir, KERNBASE, 0);
-  for(i = 0; i < NPDENTRIES; i++){
+  deallocuvm(pgdir, KERNBASE, PGSIZE * 4);
+  for(i = 4; i < NPDENTRIES; i++){
     if(pgdir[i] & PTE_P){
       char * v = P2V(PTE_ADDR(pgdir[i]));
       kfree(v);
@@ -383,6 +388,41 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
     va = va0 + PGSIZE;
   }
   return 0;
+}
+
+
+void*
+shmgetvm(pde_t *pgdir, int id)
+{
+  char *mem;
+  uint a;
+  if (id < 1 || id > 3)
+    return NULL;
+
+  a = PGSIZE * id;
+  if (shmem.counts[id - 1] == 0) {
+    mem = kalloc();
+    if(mem == 0){
+      cprintf("allocuvm out of memory\n");
+      // deallocuvm(pgdir, newsz, oldsz);
+      return 0;
+    }
+
+  } else {
+    mem = shmem.addrs[id - 1];
+  }
+  
+
+  memset(mem, 0, PGSIZE);
+  if(mappages(pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
+    cprintf("allocuvm out of memory (2)\n");
+    kfree(mem);
+    return 0;
+  }
+  shmem.counts[id - 1]++;
+
+  return (void*) a;
+
 }
 
 //PAGEBREAK!

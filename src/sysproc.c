@@ -129,3 +129,12 @@ int
 sys_read_registers(void) {
   return read_registers();
 }
+
+int
+sys_shmget(void) {
+  int id;
+  if(argint(0, &id) < 0)
+    return 0; // define null and change it
+  
+  return (int)shmget(id);
+}

@@ -28,6 +28,7 @@ void set_alarm(int);
 int print_syscalls(void);
 int set_edx(int);
 int read_registers(void);
+int shmget(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -42,3 +43,5 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+#define NULL ((void*) 0)

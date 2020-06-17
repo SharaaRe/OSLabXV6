@@ -108,6 +108,7 @@ extern int sys_set_alarm(void);
 extern int sys_print_syscalls(void);
 extern int sys_set_edx(void);
 extern int sys_read_registers(void);
+extern int sys_shmget(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -136,6 +137,7 @@ static int (*syscalls[])(void) = {
 [SYS_set_edx] sys_set_edx,
 [SYS_read_registers] sys_read_registers,
 [SYS_set_alarm] sys_set_alarm,
+[SYS_shmget] sys_shmget,
 };
 
 void

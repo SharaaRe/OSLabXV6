@@ -748,3 +748,9 @@ read_registers(void) {
   release(&ptable.lock);
   return 26;
 }
+
+void*
+shmget(int id)
+{
+  return shmgetvm(myproc()->pgdir, id);
+}

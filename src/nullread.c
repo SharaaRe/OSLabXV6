@@ -1,6 +1,5 @@
 #include "types.h"
 #include "user.h"
-#define NULL ((void*) 0)
 
 int main(int argc, char **argv) {
     void *null_pointer = NULL;
