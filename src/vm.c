@@ -416,7 +416,6 @@ shmgetvm(pde_t *pgdir, int id)
   pte = walkpgdir(pgdir, &a, 0);
 
   if(*pte & PTE_P) {
-    cprintf("Page already shared!\n");
     return NULL;
   }
 
@@ -427,7 +426,6 @@ shmgetvm(pde_t *pgdir, int id)
   }
   shmem.counts[id - 1]++;
 
-  cprintf("Page shared successfully!\n");
   return (void*) a;
 }
 

@@ -221,7 +221,7 @@ fork(void)
     s->retval = 0;
   }
 
-  passpg(ppgdir, cpgdir);
+  passpg(curproc->pgdir, np->pgdir);
 
   release(&ptable.lock);
   return pid;
