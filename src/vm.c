@@ -415,7 +415,7 @@ shmgetvm(pde_t *pgdir, int id)
   // aa = (char*)PGROUNDDOWN((uint)a);
   pte = walkpgdir(pgdir, &a, 0);
 
-  if(pte[31] == 1) {
+  if(*pte & PTE_P) {
     cprintf("Page already shared!\n");
     return NULL;
   }
